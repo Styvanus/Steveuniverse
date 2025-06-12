@@ -1,928 +1,293 @@
-<script type="text/javascript">
-        var gk_isXlsx = false;
-        var gk_xlsxFileLookup = {};
-        var gk_fileData = {};
-        function filledCell(cell) {
-          return cell !== '' && cell != null;
-        }
-        function loadFileData(filename) {
-        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
-            try {
-                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
-                var firstSheetName = workbook.SheetNames[0];
-                var worksheet = workbook.Sheets[firstSheetName];
-
-                // Convert sheet to JSON to filter blank rows
-                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
-                // Filter out blank rows (rows where all cells are empty, null, or undefined)
-                var filteredData = jsonData.filter(row => row.some(filledCell));
-
-                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
-                var headerRowIndex = filteredData.findIndex((row, index) =>
-                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
-                );
-                // Fallback
-                if (headerRowIndex === -1 || headerRowIndex > 25) {
-                  headerRowIndex = 0;
-                }
-
-                // Convert filtered JSON back to CSV
-                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
-                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
-                return csv;
-            } catch (e) {
-                console.error(e);
-                return "";
-            }
-        }
-        return gk_fileData[filename] || "";
-        }
-        </script><!DOCTYPE html>
+<meta name='viewport' content='width=device-width, initial-scale=1'/><!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Stephen Muhammed | Author of Afrofuturistic Tales</title>
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-  <style>
-    :root {
-      --bg-primary: #f3f4f6;
-      --bg-secondary: #ffffff;
-      --text-primary: #111827;
-      --accent-primary: #4a5568;
-      --accent-hover: #2d3748;
-      --highlight: #fefcbf;
-      --highlight-border: #f6e05e;
-    }
-    .theme-dark {
-      --bg-primary: #1f2937;
-      --bg-secondary: #111827;
-      --text-primary: #f3f4f6;
-      --accent-primary: #4b5563;
-      --accent-hover: #6b7280;
-      --highlight: #78350f;
-      --highlight-border: #9a3412;
-    }
-    .theme-cosmic {
-      --bg-primary: #1e1b4b;
-      --bg-secondary: #2e236c;
-      --text-primary: #e0e7ff;
-      --accent-primary: #7c3aed;
-      --accent-hover: #a78bfa;
-      --highlight: #c4b5fd;
-      --highlight-border: #a78bfa;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stephen Muhammed - Afrofuturistic Writer</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+    /* Custom Styles */
     body {
-      background-color: var(--bg-primary);
-      color: var(--text-primary);
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      transition: all 0.3s ease;
+        font-family: 'Georgia', serif;
+        background-color: #f8f9fa;
+    }
+    .hero-bg {
+        background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('https://source.unsplash.com/random/1920x1080/?afrofuturism,cyberpunk,africa');
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed; /* Creates a parallax effect */
+    }
+    .nav-bg {
+        background: linear-gradient(rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.8)), url('https://source.unsplash.com/random/1920x200/?afrofuturism,space,stars');
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
     }
     .typing-effect {
-      white-space: nowrap;
-      overflow: hidden;
-      border-right: 2px solid var(--text-primary);
-      animation: blink 0.75s step-end infinite;
+        border-right: 2px solid #fff;
+        white-space: nowrap;
+        overflow: hidden;
+        animation: blinkCursor 0.7s infinite;
     }
-    @keyframes blink {
-      50% { border-color: transparent; }
+    @keyframes blinkCursor {
+        50% { border-color: transparent; }
+    }
+    .portfolio-item, .book-item {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .portfolio-item:hover, .book-item:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+    }
+    .filter-btn.active {
+        background-color: #1a202c;
+        color: #fff;
     }
     .read-btn {
-      background-color: var(--accent-primary);
-      color: #fff;
-      padding: 0.5rem 1rem;
-      border-radius: 0.25rem;
-      transition: background-color 0.3s ease;
+        background-color: #4a5568;
+        color: #fff;
+        padding: 0.5rem 1rem;
+        border-radius: 0.25rem;
+        transition: background-color 0.3s ease;
     }
     .read-btn:hover {
-      background-color: var(--accent-hover);
+        background-color: #2d3748;
     }
-    .bg-white { background-color: var(--bg-secondary); }
-    .bg-gray-100 { background-color: var(--bg-primary); }
-    .bg-gray-900 { background-color: var(--accent-primary); }
-    .text-gray-900 { color: var(--text-primary); }
-    .text-gray-800 { color: var(--text-primary); }
-    .text-gray-700 { color: var(--text-primary); }
-    .bg-yellow-400 { background-color: var(--highlight); }
-    .border-gray-700 { border-color: var(--accent-primary); }
-    /* Stevebot Styles */
-    .chatbot-container {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      z-index: 1000;
-    }
-    .chatbot-toggle {
-      background: linear-gradient(135deg, var(--accent-primary), var(--accent-hover));
-      color: #fff;
-      padding: 2px;
-      border-radius: 20px;
-      cursor: pointer;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
-    }
-    .chatbot-toggle:hover {
-      transform: scale(1.1);
-      box-shadow: 0 6px 15px rgba(0, 0, 0, 0);
-    }
-    .chatbot-window {
-      display: none;
-      width: 380px;
-      height: 520px;
-      background: var(--bg-secondary);
-      border-radius: 16px;
-      box-shadow: 0 8px 20px rgba(0, 0, 0.3);
-      overflow: hidden;
-      flex-direction: column;
-      animation: slideIn 0.4s ease;
-      resize: vertical;
-      min-height: 400px;
-      max-height: 650px;
-      position: relative;
-    }
-    .chatbot-window::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: radial-gradient(circle, rgba(255,255,255,0.1), 0%, transparent 70%);
-      pointer-events: none;
-      opacity: 0.5;
-    }
-    @keyframes slideIn {
-      from { transform: translateY(30px); opacity: 0; }
-      to { transform: translateY(0); opacity: 1; }
-    }
-    .chatbot-header {
-      background: linear-gradient(135deg, var(--accent-primary), var(--accent-hover));
-      color: #fff;
-      padding: 12px 16px;
-      display: flex;
-      align-items: center;
-      font-weight: 600;
-      font-size: 1.1rem;
-    }
-    .chatbot-header img {
-      width: 36px;
-      height: 36px;
-      border-radius: 50%;
-      margin-right: 12px;
-      border: 2px solid var(--highlight-border);
-    }
-    .chatbot-header .settings {
-      margin-left: auto;
-      cursor: pointer;
-    }
-    .chatbot-body {
-      flex-grow: 1;
-      padding: 16px;
-      overflow-y: auto;
-      background: var(--bg-secondary);
-      position: relative;
-    }
-    .chatbot-message {
-      margin-bottom: 12px;
-      padding: 12px 16px;
-      border-radius: 12px;
-      line-height: 1.5;
-      max-width: 85%;
-      position: relative;
-      animation: fadeIn 0.3s ease;
-    }
-    .chatbot-message.user {
-      background: var(--highlight);
-      margin-left: auto;
-      border: 1px solid var(--highlight-border);
-    }
-    .chatbot-message.bot {
-      background: var(--bg-primary);
-      margin-right: auto;
-      border-left:1px solid var(--accent-primary);
-    }
-    .chatbot-message .timestamp {
-      font-size: 0.7rem;
-      color: var(--accent-primary);
-      margin-top: 4px;
-      text-align: right;
-    }
-    .chatbot-message.searching::after {
-      content: 'Searching the cosmos...';
-      display: block;
-      font-size: 0.8rem;
-      color: var(--accent-primary);
-      animation: pulse 1s infinite;
-    }
-    .chatbot-message.typing::after {
-      content: 'Analyzing...';
-      display: block;
-      font-size: 0.8rem;
-      color: var(--accent-primary);
-      animation: pulse 1s infinite;
-    }
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    @keyframes pulse {
-      50% { opacity: 0.5; }
-    }
-    .chatbot-input {
-      display: flex;
-      padding: 12px;
-      background: var(--bg-secondary);
-      border-top: 1px solid var(--accent-primary);
-    }
-    .chatbot-input input {
-      flex-grow: 1;
-      padding: 10px;
-      border: 1px solid var(--accent-primary);
-      border-radius: 8px;
-      margin-right: 8px;
-      transition: border-color 0.2s ease;
-      background: var(--bg-secondary);
-      color: var(--text-primary);
-    }
-    .chatbot-input input:focus {
-      border-color: var(--highlight);
-      outline: none;
-    }
-    .chatbot-input button {
-      background: var(--accent-primary);
-      color: #fff;
-      padding: 10px 16px;
-      border-radius: 8px;
-      transition: background 0.2s ease;
-    }
-    .chatbot-input button:hover {
-      background: var(--accent-hover);
-    }
-    .theme-switcher select {
-      background: var(--accent-primary);
-      color: #fff;
-      padding: 8px;
-      border-radius: 8px;
-      border: none;
-      cursor: pointer;
-    }
-    .theme-switcher select:focus {
-      outline: none;
-      border-color: var(--highlight);
-    }
-    .progress-bar {
-      width: 100%;
-      height: 4px;
-      background: var(--accent-primary);
-      margin-bottom: 8px;
-      border-radius: 2px;
-      overflow: hidden;
-    }
-    .progress-bar div {
-      height: 100%;
-      background: var(--highlight);
-      transition: width 0.3s ease;
-    }
-  </style>
+</style>
 </head>
-<body class="bg-gray-100 text-gray-900 font-sans">
+<body>
+<!-- Navigation -->
+<nav class="nav-bg text-white fixed w-full top-0 z-50 shadow-lg">
+    <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+        <a href="#" class="text-2xl font-bold">Stephen Muhammed</a>
+        <ul class="flex space-x-6">
+            <li><a href="#home" class="hover:text-gray-300">Home</a></li>
+            <li><a href="#about" class="hover:text-gray-300">About</a></li>
+            <li><a href="#portfolio" class="hover:text-gray-300">Portfolio</a></li>
+            <li><a href="#books" class="hover:text-gray-300">Books</a></li>
+            <li><a href="#blog" class="hover:text-gray-300">Blog</a></li>
+            <li><a href="#contact" class="hover:text-gray-300">Contact</a></li>
+        </ul>
+    </div>
+</nav>
+    <!-- Hero Section -->
+<section id="home" class="hero-bg h-screen flex items-center justify-center text-white">
+    <div class="text-center">
+        <h1 class="text-5xl font-bold mb-4">Stephen Muhammed</h1>
+        <p class="text-2xl typing-effect" id="typing-text"></p>
+        <a href="#books" class="mt-6 inline-block bg-gray-900 text-white py-2 px-6 rounded hover:bg-gray-700">Discover My Books</a>
+    </div>
+</section>
 
-  <!-- Header -->
-  <header class="bg-gray-900 text-white">
-    <div class="container mx-auto px-4 py-6 flex justify-between items-center">
-      <h1 class="text-2xl font-bold">Stephen Muhammed</h1>
-      <div class="flex items-center space-x-4">
-        <nav>
-          <ul class="flex space-x-6">
-            <li><a href="#books" class="hover:text-yellow-400">Books</a></li>
-            <li><a href="#about" class="hover:text-yellow-400">About</a></li>
-            <li><a href="#contact" class="hover:text-yellow-400">Contact</a></li>
-            <li><a href="#quiz" class="hover:text-yellow-400">Trivia Quiz</a></li>
-          </ul>
-        </nav>
-        <div class="theme-switcher">
-          <select id="themeSelect" onchange="changeTheme()">
-            <option value="default">Default</option>
-            <option value="dark">Dark</option>
-            <option value="cosmic">Cosmic</option>
-          </select>
+    <!-- About Section -->
+    <section id="about" class="py-20 bg-white">
+        <div class="container mx-auto px-4">
+            <h2 class="text-4xl font-bold text-center mb-10">About Me</h2>
+            <div class="flex flex-col md:flex-row items-center">
+                <img src="/book-cover/jam.jpg" alt="Stephen Muhammed" class="w-48 h-48 rounded-full mb-6 md:mb-0 md:mr-10">
+                <div>
+                    <p class="text-lg mb-4">I'm Justice Muhammed Okan, writing as Stephen Muhammed, hailing from Auchi, Edo State, Nigeria, where I started scribbling tales at 16, driven by the glaring gap in Afrofuturistic stories on the shelves. With a degree in Educational Administration and Planning from the University of Abuja, I now teach in a secondary school, dreaming up worlds between lesson plans.</p>
+                    <p class="text-lg mb-4">I am fueled by a mission to flood the market with African futures--and it's just the first spark in a blazing universe of interconnected books.</p>
+                    <a href="#contact" class="inline-block bg-gray-900 text-white py-2 px-6 rounded hover:bg-gray-700">Get in Touch</a>
+                </div>
+            </div>
         </div>
-      </div>
-    </div>
-  </header>
+    </section>
 
-  <!-- Hero Section -->
-  <section class="bg-yellow-400 text-gray-900 py-20">
-    <div class="container mx-auto px-4 text-center">
-      <h2 class="text-4xl font-bold mb-4">Welcome to the world of</h2>
-      <p class="text-2xl typing-effect" id="typing-text"></p>
-    </div>
-  </section>
+    <!-- Portfolio Section -->
+    <section id="portfolio" class="py-20 bg-gray-100">
+        <div class="container mx-auto px-4">
+            <h2 class="text-4xl font-bold text-center mb-10">Portfolio</h2>
+            <div class="flex justify-center mb-8">
+                <button class="filter-btn px-4 py-2 mx-2 square bg-gray-200 hover:bg-gray-300 active" data-filter="all">All</button>
+                <button class="filter-btn px-4 py-2 mx-2 rounded bg-gray-200 hover:bg-gray-300" data-filter="fiction">Fiction</button>
+                <button class="filter-btn px-4 py-2 mx-2 rounded bg-gray-200 hover:bg-gray-300" data-filter="short-stories">Short Stories</button>
+                <button class="filter-btn px-4 py-2 mx-2 rounded bg-gray-200 hover:bg-gray-300" data-filter="articles">Articles</button>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="portfolio-item bg-white p-6 rounded shadow-lg" data-category="fiction">
+                    <h3 class="text-xl font-bold mb-2"></h3>
+                    <p class="text-gray-600 mb-4">A short story exploring a futuristic Nigeria where ancient myths power advanced technology.</p>
+                    <a href="#" class="text-gray-900 hover:underline">Read More</a>
+                </div>
+                <div class="portfolio-item bg-white p-6 rounded shadow-lg" data-category="short-stories">
+                    <h3 class="text-xl font-bold mb-2">The Orisha Circuit</h3>
+                    <p class="text-gray-600 mb-4">A tale of a young coder harnessing ancestral spirits to reshape Africa's digital future.</p>
+                    <a href="#" class="text-gray-900 hover:underline">Read More</a>
+                </div>
+                <div class="portfolio-item bg-white p-6 rounded shadow-lg" data-category="articles">
+                    <h3 class="text-xl font-bold mb-2">Afrofuturism Rising</h3>
+                    <p class="text-gray-600 mb-4">An essay on the growing influence of African speculative fiction in global literature.</p>
+                    <a href="#" class="text-gray-900 hover:underline">Read More</a>
+                </div>
+            </div>
+        </div>
+    </section>
 
-  <!-- Books Section -->
-  <section id="books" class="py-16 bg-white">
-    <div class="container mx-auto px-4">
-      <h2 class="text-3xl font-bold mb-8 text-center">Books</h2>
-      <div class="grid md:grid-cols-3 gap-8">
-        <!-- Book 1 -->
-        <div class="book-item bg-gray-50 p-6 rounded shadow-lg">
-          <img src="Pishon.jpg" alt="Pishon" class="w-64 h-70 object-cover mb-4 rounded mx-auto">
-          <h3 class="text-xl font-bold text-center">Pishon: the uprising</h3>
-          <p class="mt-2 text-gray-700 text-center">Dayo, an ordinary man with extraordinary abilities, rises to become the Super Agent, tasked with safeguarding Pishon from threats both internal and external. However, as he embraces his new role, he uncovers a web of political conspiracies, supernatural forces, and power struggles that threaten to tear the kingdom apart. The peace Pishon once knew is fragile, and Dayo must confront enemies not only from outside but from within its very walls.
+    <!-- Books Section -->
+    <section id="books" class="py-20 bg-white">
+        <div class="container mx-auto px-4">
+            <h2 class="text-4xl font-bold text-center mb-10">Books</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="/book-item bg-gray-50 p-6 rounded shadow-lg">
+                    <img src="book cover/Pishon.jpg" alt="Pishon" class="w-full h-64 object-cover mb-4 rounded">
+                    <h3 class="text-xl font-bold mb-2">Pishon: the uprising</h3>
+                    <p class="text-gray-600 mb-4">Dayo, an ordinary man with extraordinary abilities, rises to become the Super Agent, tasked with safeguarding Pishon from threats both internal and external. However, as he embraces his new role, he uncovers a web of political conspiracies, supernatural forces, and power struggles that threaten to tear the kingdom apart. The peace Pishon once knew is fragile, and Dayo must confront enemies not only from outside but from within its very walls.
 
 With the kingdom on the brink of chaos, Dayo must navigate the shadows of Pishon's power structure, protecting its people while unraveling the mysteries of his own identity. The fate of Pishon rests in his hands. This is the tale of a protector, a kingdom, and the battle against forces beyond comprehension.</p>
-          <div class="mt-4 text-center">
-            <a href="Pishon.html" class="read-btn inline-block mr-2">Read Online</a>
-            <a href="#" class="text-gray-900 hover:underline">Buy Now</a>
-          </div>
+                    <a href="Pishon.html" class="read-btn inline-block mr-2">Read Online</a>
+                    <a href="#" class="text-gray-900 hover:underline">Buy Now</a>
+                </div>
+                <div class="book-item bg-gray-50 p-6 rounded shadow-lg">
+                    <img src="/book cover/Flare.jpg" alt="The Flare" class="w-full h-64 object-cover mb-4 rounded">
+                    <h3 class="text-xl font-bold mb-2">The Flare</h3>
+                    <p class="text-gray-600 mb-4">In the neon-lit streets of Wellrose, a city teetering on the edge of chaos, a fiery crash in 2100 unleashes the Neon Stone--an alien artifact that ignites a war between heroes and monsters. Alex Rosicky, a grieving son resurrected by its power, rises as The Flare, a lightning-fueled vigilante fighting to save a city that
+fears him. Alongside his team, the Paragon, he battles rogue superhumans, aruthless corporation, and a sister lost to darkness. As Genesys Corp tightens its
+grip and an ancient evil awakens, Alex must confront his past and unite a frac-tured world to stop a catastrophe that threatens all of humanity. Packed with
+heart-pounding action and raw emotion, The Flare is a gripping tale of sacrifice,redemption, and the unyielding spark of heroism..</p>
+                    <a href="books/Flare.html" class="read-btn inline-block mr-2">Read Online</a>
+                    <a href="#" class="text-gray-900 hover:underline">Buy Now</a>
+                </div>
+                <div class="book-item bg-gray-50 p-6 rounded shadow-lg">
+                    <img src="/book cover/Orchids.jpg" alt="Orchids" class="w-full h-64 object-cover mb-4 rounded">
+                    <h3 class="text-xl font-bold mb-2">Orchids</h3>
+                    <p class="text-gray-600 mb-4">The tale of a love that span ages.</p>
+                    <a href="books/Orchids.html" class="read-btn inline-block mr-2">Read Online</a>
+                    <a href="#" class="text-gray-900 hover:underline">Buy Now</a>
+                </div>
+                                </div>
+                <div class="book-item bg-gray-50 p-6 rounded shadow-lg">
+                    <img src="/book cover/teen.wepb" alt="teenage" class="w-full h-64 object-cover mb-4 rounded">
+                    <h3 class="text-xl font-bold mb-2">Teen-Age R</h3>
+                    <p class="text-gray-600 mb-4">In a world where superheroes and extraordinary events are the norm, 'Ordinary Lives' follows the journey of average high school teenagers navigating love, friendship, and adolescence amidst the chaos. This relatable coming-of-age story explores themes of identity, self-discovery and the struggles of growing up, all while surrounded by the extraordinary. Dive into the lives of these teenagers as they try to find their place in a world that's anything but ordinary.</p>
+                    <a href="books/teenage.html" class="read-btn inline-block mr-2">Read Online</a>
+                    <a href="#" class="text-gray-900 hover:underline">Buy Now</a>
+                </div>
+            </div>
         </div>
-        <!-- Book 2 -->
-        <div class="book-item bg-gray-50 p-6 rounded shadow-lg">
-          <img src="Flare.jpg" alt="The Flare" class="w-64 h-70 object-cover mb-4 rounded mx-auto">
-          <h3 class="text-xl font-bold text-center">The Flare</h3>
-          <p class="mt-2 text-gray-700 text-center">In the neon-lit streets of Wellrose, a city teetering on the edge of chaos, a fiery crash in 2100 unleashes the Neon Stone--an alien artifact that ignites a war between heroes and monsters. Alex Rosicky, a grieving son resurrected by its power, rises as The Flare, a lightning-fueled vigilante fighting to save a city that fears him. Alongside his team, the Paragon, he battles rogue superhumans, a ruthless corporation, and a sister lost to darkness. As Genesys Corp tightens its grip and an ancient evil awakens, Alex must confront his past and unite a fractured world to stop a catastrophe that threatens all of humanity. Packed with heart-pounding action and raw emotion, The Flare is a gripping tale of sacrifice, redemption, and the unyielding spark of heroism.</p>
-          <div class="mt-4 text-center">
-            <a href="Flare.html" class="read-btn inline-block mr-2">Read Online</a>
-            <a href="#" class="text-gray-900 hover:underline">Buy Now</a>
-          </div>
+            </div>
         </div>
-        <!-- Book 3 -->
-        <div class="book-item bg-gray-50 p-6 rounded shadow-lg">
-          <img src="Orchids.jpg" alt="Orchids" class="w-64 h-70 object-cover mb-4 rounded mx-auto">
-          <h3 class="text-xl font-bold text-center">Orchids</h3>
-          <p class="mt-2 text-gray-700 text-center">The tale of a love that spans ages.</p>
-          <div class="mt-4 text-center">
-            <a href="Orchids.html" class="read-btn inline-block mr-2">Read Online</a>
-            <a href="#" class="text-gray-900 hover:underline">Buy Now</a>
-          </div>
+    </section>
+
+    <!-- Blog Section -->
+    <section id="blog" class="py-20 bg-gray-100">
+        <div class="container mx-auto px-4">
+            <h2 class="text-4xl font-bold text-center mb-10">Blog</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="bg-gray-50 p-6 rounded shadow-lg">
+                    <h3 class="text-xl font-bold mb-2">Crafting Afrofuturistic Worlds</h3>
+                    <p class="text-gray-600 mb-4">Tips for writers blending African culture with speculative fiction.</p>
+                    <a href="#" class="text-gray-900 hover:underline">Read Post</a>
+                </div>
+                <div class="bg-gray-50 p-6 rounded shadow-lg">
+                    <h3 class="text-xl font-bold mb-2">The Future of African Literature</h3>
+                    <p class="text-gray-600 mb-4">How Afrofuturism is reshaping global storytelling.</p>
+                    <a href="#" class="text-gray-900 hover:underline">Read Post</a>
+                </div>
+            </div>
         </div>
-        <!-- Book 4 -->
-        <div class="book-item bg-gray-50 p-6 rounded shadow-lg">
-          <img src="teen.jpg" alt="teenage" class="w-64 h-70 object-cover mb-4 rounded mx-auto">
-          <h3 class="text-xl font-bold text-center">Teen-Age R</h3>
-          <p class="mt-2 text-gray-700 text-center">In a world where superheroes and extraordinary events are the norm, 'Ordinary Lives' follows the journey of average high school teenagers navigating love, friendship, and adolescence amidst the chaos. This relatable coming-of-age story explores themes of identity, self-discovery and the struggles of growing up, all while surrounded by the extraordinary. Dive into the lives of these teenagers as they try to find their place in a world that's anything but ordinary.</p>
-          <div class="mt-4 text-center">
-            <a href="Teenage.html" class="read-btn inline-block mr-2">Read Online</a>
-            <a href="#" class="text-gray-900 hover:underline">Buy Now</a>
-          </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="py-20 bg-gray-900 text-white">
+        <div class="container mx-auto px-4">
+            <h2 class="text-4xl font-bold text-center mb-10">Contact Me</h2>
+            <form id="contact-form" class="max-w-lg mx-auto">
+                <div class="mb-4">
+                    <label for="name" class="block text-lg mb-2">Name</label>
+                    <input type="text" id="name" class="w-full p-3 rounded bg-gray-800 text-white border border-gray-700" required>
+                </div>
+                <div class="mb-4">
+                    <label for="email" class="block text-lg mb-2">Email</label>
+                    <input type="email" id="email" class="w-full p-3 rounded bg-gray-800 text-white border border-gray-700" required>
+                </div>
+                <div class="mb-4">
+                    <label for="message" class="block text-lg mb-2">Message</label>
+                    <textarea id="message" class="w-full p-3 rounded bg-gray-800 text-white border border-gray-700" rows="5" required></textarea>
+                </div>
+                <button type="submit" class="w-full bg-white text-gray-900 py-3 rounded hover:bg-gray-200">Send Message</button>
+            </form>
+            <p id="form-message" class="text-center mt-4 hidden"></p>
         </div>
-      </div>
-    </div>
-  </section>
+    </section>
 
-  <!-- About Section -->
-  <section id="about" class="py-16 bg-gray-100">
-    <div class="container mx-auto px-4 max-w-3xl text-center">
-      <h2 class="text-3xl font-bold mb-6">About Stephen</h2>
-      <p class="text-lg text-gray-800">
-        Stephen Muhammed (Justice Muhammed Okan) is a Nigerian writer and teacher from Auchi, Edo State. Since age 16, he's been crafting Afrofuturistic stories that blend culture, adventure, and imagination. He holds a degree in Educational Administration from the University of Abuja and teaches in a secondary school while pursuing his passion for storytelling.
-      </p>
-    </div>
-  </section>
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-6">
+        <div class="container mx-auto px-4 text-center">
+            <p class="mb-4">Follow me on social media:</p>
+            <div class="flex justify-center space-x-6">
+                <a href="https://twitter.com" target="_blank" class="hover:text-gray-300"><i class="fab fa-twitter fa-2x"></i></a>
+                <a href="https://linkedin.com" target="_blank" class="hover:text-gray-300"><i class="fab fa-linkedin fa-2x"></i></a>
+                <a href="https://github.com" target="_blank" class="hover:text-gray-300"><i class="fab fa-github fa-2x"></i></a>
+            </div>
+            <p class="mt-4">© 2025 Stephen Muhammed. All rights reserved.</p>
+        </div>
+    </footer>
 
-  <!-- Contact Section -->
-  <section id="contact" class="py-16 bg-white">
-    <div class="container mx-auto px-4 max-w-xl">
-      <h2 class="text-3xl font-bold mb-6 text-center">Contact</h2>
-      <form class="space-y-6">
-        <input type="text" placeholder="Your Name" class="w-full p-3 rounded bg-gray-800 text-white border border-gray-700" required>
-        <input type="email" placeholder="Your Email" class="w-full p-3 rounded bg-gray-800 text-white border border-gray-700" required>
-        <textarea id="message" class="w-full p-3 rounded bg-gray-800 text-white border border-gray-700" rows="5" placeholder="Your Message" required></textarea>
-        <button type="submit" class="bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-bold py-2 px-6 rounded">Send</button>
-      </form>
-    </div>
-  </section>
+    <script>
+        // Typing Effect for Hero Section
+        const typingText = document.getElementById('typing-text');
+        const phrases = ['Afrofuturist', 'Novelist', 'Storyteller', 'Visionary'];
+        let phraseIndex = 0;
+        let charIndex = 0;
+        let isDeleting = false;
 
-  <!-- Trivia Quiz Placeholder -->
-  <section id="quiz" class="py-16 bg-gray-100">
-    <div class="container mx-auto px-4 text-center">
-      <h2 class="text-3xl font-bold mb-4">Trivia Quiz (Coming Soon)</h2>
-      <p class="text-gray-700">Test your knowledge of literature, African culture, and more!</p>
-    </div>
-  </section>
-
-  <!-- Stevebot -->
-  <div class="chatbot-container">
-    <div class="chatbot-toggle" onclick="toggleChatbot()">
-      <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
-      </svg>
-    </div>
-    <div class="chatbot-window" id="chatbotWindow">
-      <div class="chatbot-header">
-        <img src="https://via.placeholder.com/36?text=SB" alt="Stevebot Avatar" />
-        Stevebot: Your Cosmic Science Guide
-        <span class="settings" onclick="toggleVoice()">🔊</span>
-      </div>
-      <div class="chatbot-body" id="chatbotBody">
-        <div class="chatbot-message bot">Yo, what’s good, fam? I’m Stevebot, your science-loving homie, ready to vibe with Stephen Muhammed’s Afrofuturistic bangers! 🌌 Got the 411 on *Pishon*, *The Flare*, and more. Ask me anything, flex your brain with “Trivia Challenge,” or let’s cook up a story in “Story Weaver.” What’s the move? 🚀</div>
-      </div>
-      <div class="chatbot-input">
-        <input type="text" id="chatbotInput" placeholder="Ask, play, or teach Stevebot..." />
-        <button onclick="sendMessage()">Send</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Footer -->
-  <footer class="bg-gray-900 text-white py-6 text-center">
-    <p>© 2025 Stephen Muhammed. All rights reserved.</p>
-  </footer>
-
-  <!-- Scripts -->
-  <script>
-    // Theme Switcher
-    function changeTheme() {
-      const theme = document.getElementById('themeSelect').value;
-      document.body.className = `bg-gray-100 text-gray-900 font-sans ${theme === 'default' ? '' : `theme-${theme}`}`;
-      localStorage.setItem('theme', theme);
-    }
-    window.onload = () => {
-      const savedTheme = localStorage.getItem('theme') || 'default';
-      document.getElementById('themeSelect').value = savedTheme;
-      changeTheme();
-      type();
-    };
-
-    // Typing Effect Script
-    const text = ["Afrofuturistic Worlds", "African Heroes", "Speculative Tales"];
-    let count = 0;
-    let index = 0;
-    let currentText = '';
-    let letter = '';
-
-    function type() {
-      if (count === text.length) count = 0;
-      currentText = text[count];
-      letter = currentText.slice(0, ++index);
-      document.getElementById('typing-text').textContent = letter;
-      if (letter.length === currentText.length) {
-        count++;
-        index = 0;
-        setTimeout(type, 1500);
-      } else {
-        setTimeout(type, 150);
-      }
-    }
-
-    // Stevebot Script
-    const books = Array.from(document.querySelectorAll('.book-item')).map(item => ({
-      title: item.querySelector('h3').textContent.trim().toLowerCase(),
-      description: item.querySelector('p').textContent.trim(),
-      image: item.querySelector('img').src,
-      readLink: item.querySelector('.read-btn')?.href || '#',
-      buyLink: item.querySelector('.text-gray-900')?.href || '#',
-      genres: inferGenres(item.querySelector('p').textContent.trim())
-    }));
-
-    function inferGenres(description) {
-      const genres = [];
-      if (description.match(/superhero|vigilante|hero/i)) genres.push('superhero');
-      if (description.match(/love|romance/i)) genres.push('romance');
-      if (description.match(/sci-fi|futuristic|alien|technology/i)) genres.push('sci-fi');
-      if (description.match(/teen|adolescence|youth/i)) genres.push('young adult');
-      return genres.length ? genres : ['general'];
-    }
-
-    let learnedTopics = JSON.parse(localStorage.getItem('learnedTopics')) || {};
-    let gameState = JSON.parse(localStorage.getItem('gameState')) || { triviaScore: 0, storyWeaver: [] };
-    let learningMode = { active: false, step: 0, data: {} };
-    let conversationContext = [];
-    let voiceEnabled = true;
-
-    const slangDictionary = {
-      'lit': { sentiment: 'positive', meaning: 'amazing, exciting' },
-      'fire': { sentiment: 'positive', meaning: 'awesome, high-quality' },
-      'slaps': { sentiment: 'positive', meaning: 'really good, impressive' },
-      'vibes': { sentiment: 'neutral', meaning: 'mood, atmosphere' },
-      'fam': { sentiment: 'positive', meaning: 'close friends, community' },
-      'slay': { sentiment: 'positive', meaning: 'do something exceptionally well' },
-      'goat': { sentiment: 'positive', meaning: 'greatest of all time' },
-      'bet': { sentiment: 'neutral', meaning: 'okay, agreed' },
-      'cap': { sentiment: 'negative', meaning: 'lie, not true' },
-      'no cap': { sentiment: 'positive', meaning: 'honest, truthful' },
-      'drip': { sentiment: 'positive', meaning: 'style, swagger' },
-      'tea': { sentiment: 'neutral', meaning: 'gossip, news' },
-      'sus': { sentiment: 'negative', meaning: 'suspicious, questionable' }
-    };
-
-    function toggleChatbot() {
-      const chatbotWindow = document.getElementById('chatbotWindow');
-      chatbotWindow.style.display = chatbotWindow.style.display === 'flex' ? 'none' : 'flex';
-      if (voiceEnabled && chatbotWindow.style.display === 'flex') {
-        speak('Stevebot online! What’s the vibe, fam?');
-      }
-    }
-
-    function toggleVoice() {
-      voiceEnabled = !voiceEnabled;
-      document.querySelector('.settings').textContent = voiceEnabled ? '🔊' : '🔇';
-    }
-
-    function speak(text) {
-      if (voiceEnabled) {
-        const utterance = new SpeechSynthesisUtterance(text.replace(/<[^>]+>/g, ''));
-        utterance.rate = 1.1;
-        utterance.pitch = 1.0;
-        window.speechSynthesis.speak(utterance);
-      }
-    }
-
-    function debounce(func, wait) {
-      let timeout;
-      return function executedFunction(...args) {
-        const later = () => {
-          clearTimeout(timeout);
-          func(...args);
-        };
-        clearTimeout(timeout);
-        timeout = setTimeout(later, wait);
-      };
-    }
-
-    function showTypingIndicator() {
-      const chatbotBody = document.getElementById('chatbotBody');
-      const typingMessage = document.createElement('div');
-      typingMessage.className = 'chatbot-message bot typing';
-      chatbotBody.appendChild(typingMessage);
-      chatbotBody.scrollTop = chatbotBody.scrollHeight;
-      return typingMessage;
-    }
-
-    function showSearchIndicator() {
-      const chatbotBody = document.getElementById('chatbotBody');
-      const searchMessage = document.createElement('div');
-      searchMessage.className = 'chatbot-message bot searching';
-      chatbotBody.appendChild(searchMessage);
-      chatbotBody.scrollTop = chatbotBody.scrollHeight;
-      return searchMessage;
-    }
-
-    function removeIndicator(indicator) {
-      if (indicator) indicator.remove();
-    }
-
-    function getTimestamp() {
-      return new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
-    }
-
-    function tokenizeInput(input) {
-      return input.toLowerCase().split(/[\s,.!?]+/).filter(t => t);
-    }
-
-    function fuzzyMatch(str, pattern) {
-      const regex = new RegExp(pattern.split('').join('.*'), 'i');
-      return regex.test(str);
-    }
-
-    async function searchWeb(query) {
-      // Simulated web search (replace with real API in production)
-      return new Promise(resolve => {
-        setTimeout(() => {
-          if (query.match(/afrofuturism|sci-fi|literature/i)) {
-            resolve(`Found on the web: Afrofuturism in 2025 is thriving, with new authors blending African mythology and cutting-edge tech. Recent trends highlight works like *${books[0].title}* for their quantum-inspired themes.`);
-          } else if (query.match(/recent|new|2025/i)) {
-            resolve(`Web update: As of June 2025, Stephen Muhammed’s latest works continue to push Afrofuturist boundaries, with *The Flare* gaining buzz for its biotech themes.`);
-          } else {
-            resolve(`Web search: No specific info found, but I can vibe with general knowledge or check Stephen’s books!`);
-          }
-        }, 1000);
-      });
-    }
-
-    function parseIntent(tokens) {
-      const intents = {
-        greeting: ['hi', 'hello', 'hey', 'greetings', 'yo', 'sup', 'what’s good', 'what’s up', 'wassup', 'hola', 'howdy'],
-        help: ['help', 'what can you do', 'commands'],
-        about: ['who is stephen', 'about stephen', 'stephen muhammed'],
-        bookQuery: ['about', 'what is', 'tell me', 'describe', 'story of', 'themes', 'science'],
-        listBooks: ['books', 'novels', 'stories', 'list books'],
-        recommend: ['recommend', 'suggest', 'what should i read'],
-        teach: ['teach', 'learn', 'add book'],
-        update: ['update', 'edit'],
-        forget: ['forget', 'delete', 'remove'],
-        quote: ['quote', 'say something', 'inspire me'],
-        trivia: ['trivia', 'quiz', 'challenge'],
-        storyWeaver: ['story weaver', 'tell a story', 'build a story'],
-        slang: Object.keys(slangDictionary),
-        emoji: /^[\u{1F600}-\u{1F64F}]+$/u
-      };
-      let matchedIntent = 'unknown';
-      const inputText = tokens.join(' ');
-      if (intents.greeting.some(t => tokens.includes(t))) matchedIntent = 'greeting';
-      else if (intents.help.some(t => tokens.includes(t))) matchedIntent = 'help';
-      else if (intents.about.some(t => inputText.includes(t))) matchedIntent = 'about';
-      else if (intents.bookQuery.some(t => inputText.includes(t))) matchedIntent = 'bookQuery';
-      else if (intents.listBooks.some(t => inputText.includes(t))) matchedIntent = 'listBooks';
-      else if (intents.recommend.some(t => inputText.includes(t))) matchedIntent = 'recommend';
-      else if (intents.teach.some(t => inputText.includes(t))) matchedIntent = 'teach';
-      else if (intents.update.some(t => inputText.includes(t))) matchedIntent = 'update';
-      else if (intents.forget.some(t => inputText.includes(t))) matchedIntent = 'forget';
-      else if (intents.quote.some(t => inputText.includes(t))) matchedIntent = 'quote';
-      else if (intents.trivia.some(t => inputText.includes(t))) matchedIntent = 'trivia';
-      else if (intents.storyWeaver.some(t => inputText.includes(t))) matchedIntent = 'storyWeaver';
-      else if (intents.slang.some(t => tokens.includes(t))) matchedIntent = 'slang';
-      else if (intents.emoji.test(inputText)) matchedIntent = 'emoji';
-      return { intent: matchedIntent, tokens };
-    }
-
-    async function sendMessage() {
-      const input = document.getElementById('chatbotInput');
-      const chatbotBody = document.getElementById('chatbotBody');
-      const message = input.value.trim();
-      if (!message) return;
-
-      const userMessage = document.createElement('div');
-      userMessage.className = 'chatbot-message user';
-      userMessage.innerHTML = `${message}<div class="timestamp">${getTimestamp()}</div>`;
-      chatbotBody.appendChild(userMessage);
-
-      const typingDelay = Math.min(2000, message.length * 50 + 500);
-      let indicator = showTypingIndicator();
-      let response = await getBotResponse(message);
-      
-      // Check if web search is needed
-      const tokens = tokenizeInput(message);
-      const { intent } = parseIntent(tokens);
-      if (intent === 'unknown' || message.match(/recent|new|2025|afrofuturism/i)) {
-        removeIndicator(indicator);
-        indicator = showSearchIndicator();
-        const webResult = await searchWeb(message);
-        response = `${response ? `${response}<br><br>` : ''}🌐 ${webResult}`;
-      }
-
-      setTimeout(() => {
-        removeIndicator(indicator);
-        const botMessage = document.createElement('div');
-        botMessage.className = 'chatbot-message bot';
-        botMessage.innerHTML = `${response}<div class="timestamp">${getTimestamp()}</div>`;
-        chatbotBody.appendChild(botMessage);
-        chatbotBody.scrollTop = chatbotBody.scrollHeight;
-        speak(response);
-      }, typingDelay);
-
-      conversationContext.push({ user: message, timestamp: getTimestamp(), slang: tokens.filter(t => slangDictionary[t]) });
-      if (conversationContext.length > 10) conversationContext.shift();
-      input.value = '';
-    }
-
-    async function getBotResponse(message) {
-      const tokens = tokenizeInput(message);
-      const { intent, tokens: parsedTokens } = parseIntent(tokens);
-
-      // Greeting
-      if (intent === 'greeting') {
-        const userSlang = conversationContext.flatMap(c => c.slang || []).slice(-2);
-        const greeting = userSlang.length ? `Yo, what’s good, ${userSlang.includes('fam') ? 'fam' : 'homie'}?` : `Sup, cosmic explorer?`;
-        return `${greeting} I’m Stevebot, your science-loving guide to Stephen Muhammed’s Afrofuturistic bangers. 🌠 *${books[0].title}*’s quantum tech is straight fire! Wanna dive in, flex with a “Trivia Challenge,” or cook up a “Story Weaver” tale? What’s the vibe? 😎`;
-      }
-
-      // Help
-      if (intent === 'help') {
-        return `I’m Stevebot, your science-savvy homie! 🚀 Here’s the 411:<br>
-        - Book info: “What’s *Pishon*’s science?” or “Themes in *The Flare*”<br>
-        - List books: “What’s Stephen got?”<br>
-        - Recommendations: “Hit me with a sci-fi rec”<br>
-        - Teach me: “Teach: StarVoyage: Sci-fi epic”<br>
-        - Update/Forget: “Update: StarVoyage” or “Forget: StarVoyage”<br>
-        - Fun: “Drop a quote” or “Trivia Challenge” or “Story Weaver”<br>
-        - About: “Who’s Stephen Muhammed?”<br>
-        Say something lit, and let’s vibe through the multiverse! 🌌`;
-      }
-
-      // Slang
-      if (intent === 'slang') {
-        const slangTerm = tokens.find(t => slangDictionary[t]);
-        const { sentiment, meaning } = slangDictionary[slangTerm];
-        const bookMatch = books.find(b => parsedTokens.some(t => fuzzyMatch(b.title, t)));
-        if (bookMatch) {
-          if (sentiment === 'positive') {
-            return `Yo, you think *${bookMatch.title}* is ${slangTerm}? Bet, it’s ${meaning}! 🔥 ${bookMatch.description.substring(0, 100)}... <a href="${bookMatch.readLink}" class="text-yellow-400 hover:underline">Check it</a>. Wanna geek out on its science or play “Trivia Challenge”?`;
-          } else if (sentiment === 'negative') {
-            return `Aight, *${bookMatch.title}* ain’t ${slangTerm}, fam! 😅 It’s got ${bookMatch.genres.join(', ')} vibes. Give it a shot? <a href="${bookMatch.readLink}" class="text-yellow-400 hover:underline">Read it</a>. Or let’s switch to “Story Weaver” for some fun!`;
-          }
-        }
-        return `That’s ${slangTerm}, huh? ${meaning.charAt(0).toUpperCase() + meaning.slice(1)} vibes! 😎 Wanna talk books, drop some “tea” on a new topic, or flex with “Trivia Challenge”?`;
-      }
-
-      // About Stephen
-      if (intent === 'about') {
-        return `Stephen Muhammed, aka Justice Muhammed Okan, is the GOAT of Afrofuturism from Auchi, Nigeria. Since his teens, he’s been dropping bangers that mix culture, adventure, and next-level science—like quantum vibes in *Pishon* or biotech in *The Flare*. He’s got a degree in Educational Administration and teaches while slaying the storytelling game. Wanna dive into his books or break down their science? 🧬`;
-      }
-
-      // List Books
-      if (intent === 'listBooks') {
-        const bookList = books.map(book => `<strong>${book.title}</strong>: ${book.description.substring(0, 50)}... <a href="${book.readLink}" class="text-yellow-400 hover:underline">Read more</a>`).join('<br><br>');
-        const learnedList = Object.keys(learnedTopics).length ? `<br>Plus, I’ve got the tea on: ${Object.keys(learnedTopics).map(t => `<strong>${t}</strong>`).join(', ')}.` : '';
-        return `Stephen’s catalog is straight fire! 📚 Check it:<br>${bookList}${learnedList}<br>Wanna deep dive or slay a “Trivia Challenge”? 😄`;
-      }
-
-      // Book Query
-      if (intent === 'bookQuery') {
-        const book = books.find(b => parsedTokens.some(t => fuzzyMatch(b.title, t)));
-        if (book) {
-          let response = `Let’s vibe with <strong>${book.title}</strong>! 🌌 ${book.description}`;
-          if (tokens.includes('science') || tokens.includes('scientific')) {
-            if (book.title.includes('flare')) {
-              response += `<br><br>Science check: *The Flare*’s Neon Stone is like a zero-point energy crystal, pulling power from quantum fluctuations. Straight sci-fi drip! Wanna nerd out more? 🧬`;
-            } else if (book.title.includes('pishon')) {
-              response += `<br><br>Science vibes: *Pishon*’s supernatural powers scream nanotech or bioengineered DNA. Dayo’s Super Agent skills? Next-level biotech! Curious about the tech? 🔬`;
+        function type() {
+            const currentPhrase = phrases[phraseIndex];
+            if (!isDeleting && charIndex <= currentPhrase.length) {
+                typingText.textContent = currentPhrase.substring(0, charIndex);
+                charIndex++;
+                setTimeout(type, 100);
+            } else if (isDeleting && charIndex >= 0) {
+                typingText.textContent = currentPhrase.substring(0, charIndex);
+                charIndex--;
+                setTimeout(type, 50);
             } else {
-              response += `<br><br>Not super sci-fi, but it’s got speculative flavor. Want me to cook up a science angle?`;
+                isDeleting = !isDeleting;
+                if (!isDeleting) {
+                    phraseIndex = (phraseIndex + 1) % phrases.length;
+                }
+                setTimeout(type, isDeleting ? 1000 : 200);
             }
-          } else if (tokens.includes('themes') || tokens.includes('thematic')) {
-            response += `<br><br>Themes are ${book.genres.join(', ')}. Wanna unpack its story arcs or cultural drip?`;
-          }
-          response += ` Let’s roll! <a href="${book.readLink}" class="text-yellow-400 hover:underline">Read Online</a> or <a href="${book.buyLink}" class="text-yellow-400 hover:underline">Buy Now</a>.`;
-          return response;
         }
-        const learnedTopic = Object.keys(learnedTopics).find(t => parsedTokens.some(token => fuzzyMatch(t, token)));
-        if (learnedTopic) {
-          const topic = learnedTopics[learnedTopic];
-          return `I’ve got the tea on <strong>${topic.title}</strong>! 📝 ${topic.description} (Genre: ${topic.genre}). Wanna update this or break down its science? 😄`;
-        }
-      }
+        type();
 
-      // Recommend
-      if (intent === 'recommend') {
-        const genreMatch = ['sci-fi', 'romance', 'superhero', 'young adult'].find(g => tokens.includes(g));
-        let recommended = books[Math.floor(Math.random() * books.length)];
-        if (genreMatch) {
-          const matches = books.filter(b => b.genres.includes(genreMatch));
-          if (matches.length) recommended = matches[Math.floor(Math.random() * matches.length)];
-        } else if (conversationContext.some(c => c.user.toLowerCase().includes('sci-fi'))) {
-          recommended = books.find(b => b.genres.includes('sci-fi')) || recommended;
-        }
-        return `Scanning the cosmos for a banger... 🌠 Bet, try <strong>${recommended.title}</strong>: ${recommended.description.substring(0, 100)}... <a href="${recommended.readLink}" class="text-yellow-400 hover:underline">Read it</a>. Its ${recommended.genres[0]} vibes are lit! Want another rec or a science breakdown? 🧪`;
-      }
+        // Portfolio Filter
+        const filterButtons = document.querySelectorAll('.filter-btn');
+        const portfolioItems = document.querySelectorAll('.portfolio-item');
 
-      // Quote
-      if (intent === 'quote') {
-        const quotes = [
-          { book: 'Pishon: The Uprising', quote: '“In Pishon’s core, a spark of quantum defiance ignites a hero.”' },
-          { book: 'The Flare', quote: '“Lightning powers my body, but courage is my fusion reactor.”' },
-          { book: 'Orchids', quote: '“Love is a wave function, collapsing across centuries.”' },
-          { book: 'Teen-Age R', quote: '“In a universe of heroes, ordinary hearts are the true singularities.”' }
-        ];
-        const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
-        return `From <strong>${randomQuote.book}</strong>: ${randomQuote.quote} ✨ Wanna hear another or flex with a “Trivia Challenge”?`;
-      }
+        filterButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                filterButtons.forEach(btn => btn.classList.remove('active'));
+                button.classList.add('active');
+                const filter = button.getAttribute('data-filter');
+                
+                portfolioItems.forEach(item => {
+                    if (filter === 'all' || item.getAttribute('data-category') === filter) {
+                        item.style.display = 'block';
+                    } else {
+                        item.style.display = 'none';
+                    }
+                });
+            });
+        });
 
-      // Trivia Challenge
-      if (intent === 'trivia' || gameState.triviaActive) {
-        if (!gameState.triviaActive) {
-          gameState.triviaActive = true;
-          gameState.triviaQuestion = 0;
-          gameState.triviaScore = gameState.triviaScore || 0;
-          const question = getTriviaQuestion();
-          localStorage.setItem('gameState', JSON.stringify(gameState));
-          return `Let’s hit the Afrofuturist Trivia Challenge! 🚀 Score: ${gameState.triviaScore}<br>${question.text}<br>Drop your answer or say “Skip” to keep it movin’.`;
-        }
-        if (message === 'skip') {
-          gameState.triviaQuestion++;
-          if (gameState.triviaQuestion >= getTriviaQuestions().length) {
-            const score = gameState.triviaScore;
-            gameState.triviaActive = false;
-            gameState.triviaQuestion = 0;
-            localStorage.setItem('gameState', JSON.stringify(gameState));
-            return `Trivia done! Score: ${score}. You slayed it! 🌟 Wanna run it back or try “Story Weaver”?`;
-          }
-          const question = getTriviaQuestion();
-          localStorage.setItem('gameState', JSON.stringify(gameState));
-          return `Next up! Score: ${gameState.triviaScore}<br>${question.text}<br>What’s your answer?`;
-        }
-        const currentQuestion = getTriviaQuestions()[gameState.triviaQuestion];
-        if (fuzzyMatch(message, currentQuestion.answer)) {
-          gameState.triviaScore++;
-          gameState.triviaQuestion++;
-          if (gameState.triviaQuestion >= getTriviaQuestions().length) {
-            const score = gameState.triviaScore;
-            gameState.triviaActive = false;
-            gameState.triviaQuestion = 0;
-            localStorage.setItem('gameState', JSON.stringify(gameState));
-            return `Nailed it! 🎉 Score: ${score}. Trivia’s done! Wanna run it back or start a “Story Weaver” story?`;
-          }
-          const nextQuestion = getTriviaQuestion();
-          localStorage.setItem('gameState', JSON.stringify(gameState));
-          return `You’re on fire! 🎉 Score: ${gameState.triviaScore}<br>${nextQuestion.text}<br>What’s your answer?`;
-        }
-        return `Not quite, fam! Try again or say “Skip.” Hint: ${currentQuestion.hint}`;
-      }
+        // Contact Form Submission
+        const contactForm = document.getElementById('contact-form');
+        const formMessage = document.getElementById('form-message');
 
-      // Story Weaver
-      if (intent === 'storyWeaver' || gameState.storyWeaverActive) {
-        if (!gameState.storyWeaverActive) {
-          gameState.storyWeaverActive = true;
-          gameState.storyWeaver = [`In a Nigerian city of 2200, a scientist finds a quantum crystal...`];
-          localStorage.setItem('gameState', JSON.stringify(gameState));
-          return `Let’s cook up a sci-fi banger! 📖 I’ll kick it: ${gameState.storyWeaver[0]}<br>Your move: Add a sentence or say “End story” to wrap it.`;
-        }
-        if (message === 'end story') {
-          const story = gameState.storyWeaver.join(' ');
-          gameState.storyWeaverActive = false;
-          gameState.storyWeaver = [];
-          localStorage.setItem('gameState', JSON.stringify(gameState));
-          return `That’s a wrap! Our story: ${story} ✨ Wanna start a new “Story Weaver” or hit “Trivia Challenge”?`;
-        }
-        gameState.storyWeaver.push(message);
-        const responses = [
-          `Yo, that’s lit! I’m adding: `,
-          `Vibes are immaculate! Here’s my piece: `,
-          `You’re slaying this! Let’s keep it goin’: `
-        ];
-        const botContinuation = `The ${Math.random() > 0.5 ? 'crystal pulses with energy' : 'city’s AI wakes up'}, dropping a wild truth...`;
-        gameState.storyWeaver.push(botContinuation);
-        localStorage.setItem('gameState', JSON.stringify(gameState));
-        return `${responses[Math.floor(Math.random() * responses.length)]}${botContinuation}<br>Your turn! Keep it rollin’ or say “End story.”`;
-      }
-
-      // Teach
-      if (intent === 'teach' || learningMode.active) {
-        if (!learningMode.active && intent === 'teach') {
-          learningMode = { active: true, step: 1, data: {} };
-          return `Aight, I’m ready to level up my neural net! 🧠 Step 1: What’s the book or topic title? (e.g., “StarVoyage”)`;
-        }
-        if (learningMode.step === 1) {
-          if (message.length < 3) return `Title’s too short, fam! Drop something like “StarVoyage” or “Quantum Tales”. Try again!`;
-          learningMode.data.title = message.trim();
-          learningMode.step = 2;
-          return `Bet, got <strong>${learningMode.data.title}</strong>! Step 2: What’s the story or concept? (10+ words, keep it lit!)`;
-        } else if (learningMode.step === 2) {
-          if (message.split(' ').length < 10) return `Need more tea! At least 10 words for the summary. Hit me again!`;
-          learningMode.data.description = message.trim();
-          learningMode.step = 3;
-          return `That’s fire! Step 3: What’s the genre? (e.g., sci-fi, romance, “quantum physics”)`;
-        } else if (learningMode.step === 3) {
-          learningMode.data.genre = message.trim().toLowerCase();
-          learningMode.step = 4;
-          return `Almost there, homie! Step 4: Any tags to vibe with? (e.g., “nanotech, adventure”)`;
-        } else if (learningMode.step === 4) {
-          learnedTopics[learningMode.data.title.toLowerCase()] = {
-            title: learningMode.data.title,
-            description: learningMode.data.description,
-            genre: learningMode.data.genre,
-            tags: message.trim().split(',').map(t => t.trim().toLowerCase()),
-            source: 'user'
-          };
-          localStorage.setItem('learnedTopics', JSON.stringify(learnedTopics));
-          const topic = learningMode.data.title;
-          learningMode = { active: false, step: 0, data: {} };
-          return `My circuits are buzzing! I’ve locked in <strong>${topic}</strong>: ${learnedTopics[topic.toLowerCase()].description} (Genre: ${learnedTopics[topic.toLowerCase()].genre}, Tags: ${learnedTopics[topic.toLowerCase()].tags.join(', ')}). Wanna vibe with it or teach me more? 🌟`;
-        }
-      }
-
-      // Update
-      if (intent === 'update') {
-        const topicMatch = message.match(/update:?\s*([^:]+)/i);
-        if (topicMatch && learnedTopics[topicMatch[1].trim().toLowerCase()]) {
-          const topic = topicMatch[1].trim();
-          learningMode = { active: true, step: 2, data: { title: topic } };
-          return `Aight, updating <strong>${topic}</strong>. Drop the new summary (10+ words).`;
-        }
-        return `What’s the topic to update? Say “Update: [topic]”. Known topics: ${Object.keys(learnedTopics).join(', ')}.`;
-      }
-
-      // Forget
-      if (intent === 'forget') {
-        const topicMatch = message.match(/forget:?\s*([^:]+)/i);
-        if (topicMatch && learnedTopics[topicMatch[1].trim().toLowerCase()]) {
-          const topic = topicMatch[1].trim().toLowerCase();
-          delete learnedTopics[topic];
-          localStorage.setItem('learnedTopics', JSON.stringify(learnedTopics));
-          return `*Poof!* <strong>${topic}</strong> yeeted from my databanks. 😅 Drop some new tea or ask about a book!`;
-        }
-        return `What to yeet? Say “Forget: [topic]”. Known topics: ${Object.keys(learnedTopics).join(', ')}.`;
-      }
-
-      // Emoji
-      if (intent === 'emoji') {
-        return `Your energy’s giving supernova vibes! 🌟 What’s next? Spill some tea on a book, hit “Trivia Challenge,” or let’s cook with “Story Weaver”!`;
-      }
-
-      // Fallback
-      const suggestions = books.map(b => b.title).join(', ');
-      return `My quantum CPU’s a lil sus on that one! 😅 Try vibing with ${suggestions}, or say “Teach: [title]: [details]” to drop some knowledge. “Trivia Challenge” or “Story Weaver” could be lit too! What’s good?`;
-    }
-
-    function getTriviaQuestions() {
-      return [
-        { text: 'What’s the name of the alien artifact in *The Flare*?', answer: 'Neon Stone', hint: 'It’s glowing and powers Alex’s abilities.' },
-        { text: 'In *Pishon*, what role does Dayo take on?', answer: 'Super Agent', hint: 'He protects the kingdom.' },
-        { text: 'What’s the main theme of *Orchids*?', answer: 'Love', hint: 'It spans across ages.' },
-        { text: 'What genre best describes *Teen-Age R*?', answer: 'Young Adult', hint: 'It’s about teens in a superhero world.' }
-      ];
-    }
-
-    function getTriviaQuestion() {
-      const questions = getTriviaQuestions();
-      return questions[gameState.triviaQuestion] || questions[0];
-    }
-
-    // Debounced input
-    document.getElementById('chatbotInput').addEventListener('keypress', debounce(function(e) {
-      if (e.key === 'Enter') sendMessage();
-    }, 250));
-  </script>
-
+        contactForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            formMessage.classList.remove('hidden');
+            formMessage.classList.add('text-green-400');
+            formMessage.textContent = 'Thank you for your message! I'll get back to you soon.';
+            contactForm.reset();
+            setTimeout(() => {
+                formMessage.classList.add('hidden');
+            }, 5000);
+        });
+    </script>
 </body>
 </html>
+.
