@@ -384,32 +384,6 @@
             <button onclick="sendMessage()">Send</button>
         </div>
     </div>
-        // News API Integration
-        async function fetchNews() {
-            const newsGrid = document.getElementById('news-grid');
-            newsGrid.innerHTML = '<p class="text-center text-gray-300 col-span-2">Loading news...</p>';
-            try {
-                const response = await fetch('https://newsapi.org/v2/everything?q=afrofuturism+OR+"african sci-fi"&language=en&sortBy=publishedAt&apiKey=152b457b574b4916b1bdf59cca1c0201');
-                const data = await response.json();
-                newsGrid.innerHTML = '';
-                if (data.articles && data.articles.length > 0) {
-                    data.articles.slice(0, 2).forEach(article => {
-                        const newsItem = document.createElement('div');
-                        newsItem.className = 'section-bg p-6 rounded-lg';
-                        newsItem.innerHTML = `
-                            <h3 class="text-xl font-semibold">${article.title}</h3>
-                            <p class="mt-2 text-gray-300">${article.description || 'No description available.'}</p>
-                            <a href="${article.url}" target="_blank" class="text-blue-400 hover:underline mt-4 inline-block">Read More</a>
-                        `;
-                        newsGrid.appendChild(newsItem);
-                    });
-                } else {
-                    newsGrid.innerHTML = '<p class="text-center text-gray-300 col-span-2">No recent news found. Check back later!</p>';
-                }
-            } catch (error) {
-                newsGrid.innerHTML = '<p class="text-center text-red-400 col-span-2">Error loading news. Please try again later.</p>';
-            }
-        }
 
     <script>
         // Mobile Menu Toggle
