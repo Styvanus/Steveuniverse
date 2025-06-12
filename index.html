@@ -400,6 +400,138 @@
                 });
             });
         });
+        // Contact Form Submission
+        document.getElementById('contact-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const form = e.target;
+            const formMessage = document.getElementById('form-message');
+            formMessage.classList.remove('hidden', 'text-red-400', 'text-green-400');
+            try {
+                const response = await fetch(form.action, {
+                    method: 'POST',
+                    body: new FormData(form),
+                    headers: { 'Accept': 'application/json' }
+                });
+                if (response.ok) {
+                    formMessage.classList.add('text-green-400');
+                    formMessage.textContent = 'Message sent successfully!';
+                    form.reset();
+                } else {
+                    throw new Error('Submission failed');
+                }
+            } catch (error) {
+                formMessage.classList.add('text-red-400');
+                formMessage.textContent = 'Error sending message. Please try again.';
+            }
+        });
+
+        // News API Integration
+        async function fetchNews() {
+            const newsGrid = document.getElementById('news-grid');
+            newsGrid.innerHTML = '<p class="text-center text-gray-300 col-span-2">Loading news...</p>';
+            try {
+                const response = await fetch('https://newsapi.org/v2/everything?q=afrofuturism+OR+"african sci-fi"&language=en&sortBy=publishedAt&apiKey=152b457b574b4916b1bdf59cca1c0201');
+                const data = await response.json();
+                newsGrid.innerHTML = '';
+                if (data.articles && data.articles.length > 0) {
+                    data.articles.slice(0, 2).forEach(article => {
+                        const newsItem = document.createElement('div');
+                        newsItem.className = 'section-bg p-6 rounded-lg';
+                        newsItem.innerHTML = `
+                            <h3 class="text-xl font-semibold">${article.title}</h3>
+                            <p class="mt-2 text-gray-300">${article.description || 'No description available.'}</p>
+                            <a href="${article.url}" target="_blank" class="text-blue-400 hover:underline mt-4 inline-block">Read More</a>
+                        `;
+                        newsGrid.appendChild(newsItem);
+                    });
+                } else {
+                    newsGrid.innerHTML = '<p class="text-center text-gray-300 col-span-2">No recent news found. Check back later!</p>';
+                }
+            } catch (error) {
+                newsGrid.innerHTML = '<p class="text-center text-red-400 col-span-2">Error loading news. Please try again later.</p>';
+            }
+        }
+
+        // Stories Section: 10 Short Stories and Quotes
+        const shortStories = [
+            {
+                title: 'Echoes of Lagos',
+                description: 'A detective hunts a time-traveling thief in 2070 Lagos.',
+                genre: 'Mystery',
+                content: 'Detective Bola chased the thief through Lagos’ floating markets, where holograms flickered. The thief’s device warped time, leaving ripples in the air. Bola cornered him by the lagoon, but the thief vanished, leaving a note: “Catch me yesterday.” Bola gripped her chrono-scanner, ready to rewrite history.'
+            },
+            {
+                title: 'The Sky Weaver',
+                description: 'An orphan discovers her power to shape clouds into machines.',
+                genre: 'Adventure',
+                content: 'Efia stood on the savanna, hands raised, clouds twisting into gears above. Orphaned, she’d hidden her gift until raiders attacked. Now, she wove a storm of steel wings, driving them back. The village cheered, but Efia eyed the horizon, sensing her true calling beyond.'
+            },
+            {
+                title: 'Red Dust Duel',
+                description: 'A gunslinger faces a mechanical foe in a desert wasteland.',
+                genre: 'Sci-Fi',
+                content: 'Jide faced the mech in the red dunes, his plasma revolver humming. The machine’s gears whirred, its eye locked on him. “Last chance,” Jide warned. It charged. He fired, sparks flying. The mech fell, but Jide heard more approaching, their hums echoing in the dust.'
+            },
+            {
+                title: 'The Forgotten Mask',
+                description: 'A dancer dons a mask that reveals hidden truths.',
+                genre: 'Fantasy',
+                content: 'At the festival, Aisha found the mask, its carvings glowing faintly. She wore it, and the crowd’s secrets spilled into her mind—lies, loves, betrayals. She danced, exposing truths with every step. By midnight, the mask burned her skin, whispering, “Now, you are mine.”'
+            }
+        ];
+
+        const quotes = [
+            '“Imagination is the key to uncharted worlds.” — Steve Universe',
+            '“In every story, a spark of truth ignites.” — Unknown',
+            '“The future is woven from our dreams.” — Afrofuturist Proverb',
+            '“Create boldly, for the stars are watching.” — Cosmic AI',
+            '“Every tale reshapes the universe.” — Justice Muhammed Okan',
+            '“In chaos, stories find their voice.” — African Sci-Fi Maxim',
+            '“The pen carves paths where feet fear to tread.” — Unknown',
+            '“Dreams are the seeds of tomorrow’s reality.” — Steve Universe',
+            '“A story is a bridge between hearts.” — Afrofuturist Saying',
+            '“The cosmos hums with untold tales.” — Cosmic AI'
+        ];
+
+        let selectedStories = [];
+
+        function displayStories() {
+            const storiesGrid = document.getElementById('stories-grid');
+            storiesGrid.innerHTML = '';
+            const today = new Date().toISOString().split('T')[0];
+            const seed = today.split('-').join('');
+
+            // Deterministic random selection based on date
+            const shuffle = (array, seed) => {
+                let m = array.length, t, i;
+                const rng = () => {
+                    const x = Math.sin(seed++) * 10000;
+                    return x - Math.floor(x);
+                };
+                while (m) {
+                    i = Math.floor(rng() * m--);
+                    t = array[m];
+                    array[m] = array[i];
+                    array[i] = t;
+                }
+                return array;
+            };
+
+            selectedStories = shuffle([...shortStories], seed).slice(0, 2);
+            const selectedQuotes = shuffle([...quotes], seed + 1).slice(0, 2);
+
+            selectedStories.forEach((story, index) => {
+                const storyItem = document.createElement('div');
+                storyItem.className = 'section-bg p-6 rounded-lg';
+                storyItem.innerHTML = `
+                    <h3 class="text-xl font-semibold">${story.title} <span class="text-sm text-gray-400">(${story.genre})</span></h3>
+                    <p class="mt-2 text-gray-300">${story.content}</p>
+                    <p class="quote mt-2">"${selectedQuotes[index]}"</p>
+                    <a href="#" class="text-blue-400 hover:underline mt-4 inline-block">Read More</a>
+                `;
+                storiesGrid.appendChild(storyItem);
+            });
+        });
 
         // AI Chatbot Functionality
         const chatHistory = [];
