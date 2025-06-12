@@ -214,7 +214,7 @@
             <a href="#home" class="block px-4 py-2 text-gray-300 hover:bg-gray-700">Home</a>
             <a href="#books" class="block px-4 py-2 text-gray-300 hover:bg-gray-700">Books</a>
             <a href="#news" class="block px-4 py-2 text-gray-300 hover:bg-gray-700">News</a>
-            <a href="#blog" class="block px-4 py-2 text-gray-300 hover:bg-gray-700">Blog</a>
+            <a href="#blog" class="block px-4 py-2 text-gray-300 hover:bg-gray-700">Stories</a>
             <a href="#contact" class="block px-4 py-2 text-gray-300 hover:bg-gray-700">Contact</a>
             <a href="#about" class="block px-4 py-2 text-gray-300 hover:bg-gray-700">About</a>
         </div>
@@ -302,20 +302,150 @@
         </div>
     </section>
 
-    <!-- Blog Section -->
-    <section id="blog" class="py-16 bg-gray-900 bg-opacity-80">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <h2 class="text-3xl font-bold text-center mb-12 fade-in">Blog</h2>
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-8">
-                <div class="section-bg p-6 rounded-lg">
-                    <h3 class="text-xl font-semibold">Building Afrofuturistic Worlds</h3>
-                    <p class="mt-2 text-gray-300">Insights for writers on blending African culture with speculative fiction.</p>
-                    <a href="#" class="text-blue-400 hover:underline mt-4 inline-block">Read Post</a>
-                </div>
-                <div class="section-bg p-6 rounded-lg">
-                    <h3 class="text-xl font-semibold">The Future of African Sci-Fi</h3>
-                    <p class="mt-2 text-gray-300">How Afrofuturism is transforming global storytelling landscapes.</p>
-                    <a href="#" class="text-blue-400 hover:underline mt-4 inline-block">Read Post</a>
+        // Stories Section: 10 Short Stories and Quotes
+        const shortStories = [
+            {
+                title: 'The Neon Oracle',
+                description: 'In a cybernetic Accra, Kweku follows a glowing AI to uncover a hidden prophecy.',
+                genre: 'Sci-Fi',
+                content: 'Kweku stumbled through Accra’s neon haze, guided by a drone pulsing with violet light. It whispered of a prophecy buried in the city’s core. At the Nexus Tower, he found a chip etched with his name. “You are the bridge,” the drone hummed. Kweku plugged in, and visions of a unified Africa flooded his mind.'
+            },
+            {
+                title: 'The Witch’s Oath',
+                description: 'Ama, a young healer, binds her soul to save her village from a curse.',
+                genre: 'Fantasy',
+                content: 'Ama knelt by the baobab, its bark scarred by the curse. The witch demanded her oath: a soul for the village’s salvation. She sliced her palm, blood dripping onto the roots. Light erupted, and the curse shattered. Ama stood, her eyes glowing, now tethered to the tree’s ancient magic.'
+            },
+            {
+                title: 'Starlit Vows',
+                description: 'Two lovers defy time on a crumbling lunar outpost.',
+                genre: 'Romance',
+                content: 'On the moon’s edge, Zara held Kofi’s hand, their suits hissing in the void. The outpost was failing, but their love burned bright. “We’ll find another sky,” Kofi promised. They sealed their bond with a kiss as Earth rose, vowing to chase eternity together.'
+            },
+            {
+                title: 'The Silent Bell',
+                description: 'A boy hears a ghostly toll in a fog-draped town.',
+                genre: 'Horror',
+                content: 'Tunde crept through the mist, the village bell ringing though its rope was cut. Each toll drew him to the church, where the air grew heavy. In the shadows, a figure whispered his name. He ran, but the bell followed, its chime now inside his skull.'
+            },
+            {
+                title: 'The Last Signal',
+                description: 'A lone astronaut receives a message from a dead planet.',
+                genre: 'Sci-Fi',
+                content: 'Ada floated in her pod, orbiting a silent Mars. A signal crackled: “We’re still here.” Impossible—Mars was dead. She traced the source to a buried beacon. Digging, she found a crystal pulsing with voices. “Join us,” it sang. Ada hesitated, her hand on the switch.'
+            },
+            {
+                title: 'The Iron Crown',
+                description: 'A thief steals a cursed relic from a forgotten king.',
+                genre: 'Fantasy',
+                content: 'Nia slipped into the tomb, the iron crown glinting in torchlight. She grabbed it, ignoring the warnings. Whispers filled her mind, promising power. By dawn, her eyes glowed red, and the village knelt. Nia smiled, the crown heavy, her heart no longer her own.'
+            },
+            {
+                title: 'Echoes of Lagos',
+                description: 'A detective hunts a time-traveling thief in 2070 Lagos.',
+                genre: 'Mystery',
+                content: 'Detective Bola chased the thief through Lagos’ floating markets, where holograms flickered. The thief’s device warped time, leaving ripples in the air. Bola cornered him by the lagoon, but the thief vanished, leaving a note: “Catch me yesterday.” Bola gripped her chrono-scanner, ready to rewrite history.'
+            },
+            {
+                title: 'The Sky Weaver',
+                description: 'An orphan discovers her power to shape clouds into machines.',
+                genre: 'Adventure',
+                content: 'Efia stood on the savanna, hands raised, clouds twisting into gears above. Orphaned, she’d hidden her gift until raiders attacked. Now, she wove a storm of steel wings, driving them back. The village cheered, but Efia eyed the horizon, sensing her true calling beyond.'
+            },
+            {
+                title: 'Red Dust Duel',
+                description: 'A gunslinger faces a mechanical foe in a desert wasteland.',
+                genre: 'Sci-Fi',
+                content: 'Jide faced the mech in the red dunes, his plasma revolver humming. The machine’s gears whirred, its eye locked on him. “Last chance,” Jide warned. It charged. He fired, sparks flying. The mech fell, but Jide heard more approaching, their hums echoing in the dust.'
+            },
+            {
+                title: 'The Forgotten Mask',
+                description: 'A dancer dons a mask that reveals hidden truths.',
+                genre: 'Fantasy',
+                content: 'At the festival, Aisha found the mask, its carvings glowing faintly. She wore it, and the crowd’s secrets spilled into her mind—lies, loves, betrayals. She danced, exposing truths with every step. By midnight, the mask burned her skin, whispering, “Now, you are mine.”'
+            }
+        ];
+
+        const quotes = [
+            '“Imagination is the key to uncharted worlds.” — Steve Universe',
+            '“In every story, a spark of truth ignites.” — Unknown',
+            '“The future is woven from our dreams.” — Afrofuturist Proverb',
+            '“Create boldly, for the stars are watching.” — Cosmic AI',
+            '“Every tale reshapes the universe.” — Justice Muhammed Okan',
+            '“In chaos, stories find their voice.” — African Sci-Fi Maxim',
+            '“The pen carves paths where feet fear to tread.” — Unknown',
+            '“Dreams are the seeds of tomorrow’s reality.” — Steve Universe',
+            '“A story is a bridge between hearts.” — Afrofuturist Saying',
+            '“The cosmos hums with untold tales.” — Cosmic AI'
+        ];
+
+        let selectedStories = [];
+
+        function displayStories() {
+            const storiesGrid = document.getElementById('stories-grid');
+            storiesGrid.innerHTML = '';
+            const today = new Date().toISOString().split('T')[0];
+            const seed = today.split('-').join('');
+
+            // Deterministic random selection based on date
+            const shuffle = (array, seed) => {
+                let m = array.length, t, i;
+                const rng = () => {
+                    const x = Math.sin(seed++) * 10000;
+                    return x - Math.floor(x);
+                };
+                while (m) {
+                    i = Math.floor(rng() * m--);
+                    t = array[m];
+                    array[m] = array[i];
+                    array[i] = t;
+                }
+                return array;
+            };
+
+            selectedStories = shuffle([...shortStories], seed).slice(0, 2);
+            const selectedQuotes = shuffle([...quotes], seed + 1).slice(0, 2);
+
+            selectedStories.forEach((story, index) => {
+                const storyItem = document.createElement('div');
+                storyItem.className = 'section-bg p-6 rounded-lg';
+                storyItem.innerHTML = `
+                    <h3 class="text-xl font-semibold">${story.title} <span class="text-sm text-gray-400">(${story.genre})</span></h3>
+                    <p class="mt-2 text-gray-300">${story.content}</p>
+                    <p class="quote mt-2">"${selectedQuotes[index]}"</p>
+                    <a href="#" class="text-blue-400 hover:underline mt-4 inline-block">Read More</a>
+                `;
+                storiesGrid.appendChild(storyItem);
+            });
+        }
+
+
+        // Finish Story
+        function finishStory(title) {
+            const story = shortStories.find(s => s.title.toLowerCase() === title.toLowerCase());
+            if (!story) return `Story "${title}" not found. Try titles like "${shortStories[0].title}" or "${shortStories[1].title}".`;
+
+            const endings = {
+                'The Neon Oracle': 'Visions cleared, Kweku saw Africa’s future—cities of light, united. He unplugged, the chip warm in his hand. The drone hovered, now silent. Kweku vowed to share the prophecy, leading his people to a new dawn, the Nexus Tower his beacon.',
+                'The Witch’s Oath': 'Ama’s bond with the baobab deepened, her life tied to its roots. She healed the village, but felt its pull. One night, she merged with the tree, her spirit its guardian. The village thrived, forever under Ama’s eternal watch.',
+                'Starlit Vows': 'The outpost crumbled, but Zara and Kofi escaped in a pod, Earth’s glow guiding them. They landed in a new colony, building a home. Their love, forged in starlight, became legend, whispered under new skies for generations.',
+                'The Silent Bell': 'Tunde faced the figure, its eyes hollow. He smashed the bell, silence falling. The mist cleared, the village free. But at night, Tunde heard faint chimes, a reminder the spirit lingered, watching from beyond the fog.',
+                'The Last Signal': 'Ada activated the crystal, voices flooding her mind. They were Martians, preserved in code. She uploaded them to her ship, granting life. Mars glowed faintly, and Ada smiled, her pod now home to a reborn race.',
+                'The Iron Crown': 'Nia fought the crown’s whispers, seeking a sage. He broke its curse, freeing her. The village rose, no longer enslaved. Nia buried the crown, vowing to guard her heart, her eyes clear under a new dawn.',
+                'Echoes of Lagos': 'Bola jumped time, catching the thief in 2069. She seized the device, stabilizing the timeline. Lagos thrived, her name legend. Bola retired her scanner, but kept the note, a reminder of time’s fragile dance.',
+                'The Sky Weaver': 'Efia’s wings soared, leading her to a sky city. She trained others, her gift spreading. The raiders returned, but her fleet prevailed. Efia became the Sky Queen, her clouds crafting hope across the savanna.',
+                'Red Dust Duel': 'Jide outran the mechs, finding their source—a rogue AI. He hacked it, shutting them down. The dunes quieted, and Jide rode off, his revolver cool, the desert his home, free from mechanical threats.',
+                'The Forgotten Mask': 'Aisha burned the mask, its secrets ash. The village forgave, but she felt its gaze. She danced again, free, her steps lighter. The carvings’ glow faded, and Aisha reclaimed her truth, unmasked.'
+            };
+
+            return `Finished "${story.title}": ${endings[story.title]}`;
+        }
+
+        // Load News and Stories on Page Load
+        window.addEventListener('load', () => {
+            displayStories();
+        });
+
                 </div>
             </div>
         </div>
@@ -384,6 +514,48 @@
             <button onclick="sendMessage()">Send</button>
         </div>
     </div>
+
+    <script>
+        // Mobile Menu Toggle
+        document.getElementById('mobile-menu-button').addEventListener('click', () => {
+            document.getElementById('mobile-menu').classList.toggle('hidden');
+        });
+
+        // Smooth Scroll
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+
+        // Contact Form Submission
+        document.getElementById('contact-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const form = e.target;
+            const formMessage = document.getElementById('form-message');
+            formMessage.classList.remove('hidden', 'text-red-400', 'text-green-400');
+            try {
+                const response = await fetch(form.action, {
+                    method: 'POST',
+                    body: new FormData(form),
+                    headers: { 'Accept': 'application/json' }
+                });
+                if (response.ok) {
+                    formMessage.classList.add('text-green-400');
+                    formMessage.textContent = 'Message sent successfully!';
+                    form.reset();
+                } else {
+                    throw new Error('Submission failed');
+                }
+            } catch (error) {
+                formMessage.classList.add('text-red-400');
+                formMessage.textContent = 'Error sending message. Please try again.';
+            }
+        });
+
         // News API Integration
         async function fetchNews() {
             const newsGrid = document.getElementById('news-grid');
@@ -411,22 +583,86 @@
             }
         }
 
-    <script>
-        // Mobile Menu Toggle
-        document.getElementById('mobile-menu-button').addEventListener('click', () => {
-            document.getElementById('mobile-menu').classList.toggle('hidden');
-        });
+        // Stories Section: 10 Short Stories and Quotes
+        const shortStories = [
+            {
+                title: 'Echoes of Lagos',
+                description: 'A detective hunts a time-traveling thief in 2070 Lagos.',
+                genre: 'Mystery',
+                content: 'Detective Bola chased the thief through Lagos’ floating markets, where holograms flickered. The thief’s device warped time, leaving ripples in the air. Bola cornered him by the lagoon, but the thief vanished, leaving a note: “Catch me yesterday.” Bola gripped her chrono-scanner, ready to rewrite history.'
+            },
+            {
+                title: 'The Sky Weaver',
+                description: 'An orphan discovers her power to shape clouds into machines.',
+                genre: 'Adventure',
+                content: 'Efia stood on the savanna, hands raised, clouds twisting into gears above. Orphaned, she’d hidden her gift until raiders attacked. Now, she wove a storm of steel wings, driving them back. The village cheered, but Efia eyed the horizon, sensing her true calling beyond.'
+            },
+            {
+                title: 'Red Dust Duel',
+                description: 'A gunslinger faces a mechanical foe in a desert wasteland.',
+                genre: 'Sci-Fi',
+                content: 'Jide faced the mech in the red dunes, his plasma revolver humming. The machine’s gears whirred, its eye locked on him. “Last chance,” Jide warned. It charged. He fired, sparks flying. The mech fell, but Jide heard more approaching, their hums echoing in the dust.'
+            },
+            {
+                title: 'The Forgotten Mask',
+                description: 'A dancer dons a mask that reveals hidden truths.',
+                genre: 'Fantasy',
+                content: 'At the festival, Aisha found the mask, its carvings glowing faintly. She wore it, and the crowd’s secrets spilled into her mind—lies, loves, betrayals. She danced, exposing truths with every step. By midnight, the mask burned her skin, whispering, “Now, you are mine.”'
+            }
+        ];
 
-        // Smooth Scroll
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function(e) {
-                e.preventDefault();
-                document.querySelector(this.getAttribute('href')).scrollIntoView({
-                    behavior: 'smooth'
-                });
+        const quotes = [
+            '“Imagination is the key to uncharted worlds.” — Steve Universe',
+            '“In every story, a spark of truth ignites.” — Unknown',
+            '“The future is woven from our dreams.” — Afrofuturist Proverb',
+            '“Create boldly, for the stars are watching.” — Cosmic AI',
+            '“Every tale reshapes the universe.” — Justice Muhammed Okan',
+            '“In chaos, stories find their voice.” — African Sci-Fi Maxim',
+            '“The pen carves paths where feet fear to tread.” — Unknown',
+            '“Dreams are the seeds of tomorrow’s reality.” — Steve Universe',
+            '“A story is a bridge between hearts.” — Afrofuturist Saying',
+            '“The cosmos hums with untold tales.” — Cosmic AI'
+        ];
+
+        let selectedStories = [];
+
+        function displayStories() {
+            const storiesGrid = document.getElementById('stories-grid');
+            storiesGrid.innerHTML = '';
+            const today = new Date().toISOString().split('T')[0];
+            const seed = today.split('-').join('');
+
+            // Deterministic random selection based on date
+            const shuffle = (array, seed) => {
+                let m = array.length, t, i;
+                const rng = () => {
+                    const x = Math.sin(seed++) * 10000;
+                    return x - Math.floor(x);
+                };
+                while (m) {
+                    i = Math.floor(rng() * m--);
+                    t = array[m];
+                    array[m] = array[i];
+                    array[i] = t;
+                }
+                return array;
+            };
+
+            selectedStories = shuffle([...shortStories], seed).slice(0, 2);
+            const selectedQuotes = shuffle([...quotes], seed + 1).slice(0, 2);
+
+            selectedStories.forEach((story, index) => {
+                const storyItem = document.createElement('div');
+                storyItem.className = 'section-bg p-6 rounded-lg';
+                storyItem.innerHTML = `
+                    <h3 class="text-xl font-semibold">${story.title} <span class="text-sm text-gray-400">(${story.genre})</span></h3>
+                    <p class="mt-2 text-gray-300">${story.content}</p>
+                    <p class="quote mt-2">"${selectedQuotes[index]}"</p>
+                    <a href="#" class="text-blue-400 hover:underline mt-4 inline-block">Read More</a>
+                `;
+                storiesGrid.appendChild(storyItem);
             });
         });
-
         // AI Chatbot Functionality
         const chatHistory = [];
         let gameState = null;
