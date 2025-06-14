@@ -83,64 +83,32 @@
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
-        }
-        .chatbot {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            width: 300px;
-            background: #1f2937;
-            border-radius: 10px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
-            display: none;
-        }
-        .chatbot.active {
-            display: block;
-        }
-        .chatbot-header {
-            background: #3b82f6;
-            color: white;
-            padding: 10px;
-            border-top-left-radius: 10px;
-            border-top-right-radius: 10px;
-        }
-        .chatbot-body {
-            padding: 10px;
-            max-height: 300px;
-            overflow-y: auto;
-        }
-        .chatbot-input {
-            display: flex;
-            padding: 10px;
-        }
-        .chatbot-input input {
-            flex: 1;
-            padding: 8px;
-            border: 1px solid #4b5563;
-            border-radius: 5px;
-            background: #1f2937;
-            color: #e5e7eb;
-        }
-        .chatbot-input button {
-            background: #3b82f6;
-            color: white;
-            border: none;
-            padding: 8px 12px;
-            border-radius: 5px;
-            margin-left: 5px;
-            cursor: pointer;
-        }
-        .chat-message {
-            margin: 5px 0;
-        }
-        .chat-message.user {
-            text-align: right;
-            color: #60a5fa;
-        }
-        .chat-message.bot {
-            text-align: left;
-            color: #93c5fd;
-        }
+.chat-container {
+    border: 1px solid #ccc;
+    padding: 10px;
+    min-height: 200px;
+    max-width: 600px;
+    margin: 0 auto;
+}
+#chat-output {
+    margin-bottom: 10px;
+    overflow-y: auto;
+    max-height: 150px;
+}
+#chat-input {
+    width: 80%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+#chat-send {
+    padding: 10px;
+    background-color: #333;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
         .book-image {
             width: 100%;
             height: 200px;
@@ -148,17 +116,29 @@
             border-radius: 8px;
             margin-bottom: 16px;
         }
+.tic-tac-toe {
+    display: grid;
+    grid-template-columns: repeat(3, 50px);
+    gap: 5px;
+    margin: 10px auto;
+}
+.cell {
+    width: 50px;
+    height: 50px;
+    border: 1px solid #000;
+    text-align: center;
+    font-size: 24px;
+    cursor: pointer;
+    line-height: 50px;
+}
     </style>
 </head>
 <body>
-    <!-- Background Selector -->
-    <div class="fixed top-4 right-4 z-50">
-        <select id="background-selector" class="bg-gray-800 text-white p-2 rounded">
-            <option value="space">Space</option>
-            <option value="nebula">Nebula</option>
-            <option value="starry">Starry Night</option>
-        </select>
-    </div>
+<div id="background-options">
+    <span class="background-option" data-bg="space">Space</span>
+    <span class="background-option" data-bg="nebula">Nebula</span>
+    <span class="background-option" data-bg="starrynight">Starry Night</span>
+</div>
 
     <!-- Navigation -->
     <nav class="bg-gray-900 bg-opacity-90 fixed w-full z-50" aria-label="Main navigation">
@@ -321,27 +301,36 @@
         </div>
     </section>
 
-    <!-- Footer -->
-    <footer class="bg-gray-900 py-6">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex flex-col items-center">
-                <p class="text-gray-400 text-center">© 2025 Steve Universe. All rights reserved.</p>
-            </div>
-        </div>
-    </footer>
-
-    <!-- Chatbot -->
-    <div id="chatbot" class="chatbot">
-        <div class="chatbot-header">Cosmic AI</div>
-        <div class="chatbot-body" id="chatbot-body"></div>
-        <div class="chatbot-input">
-            <input type="text" id="chatbot-input" placeholder="Ask me anything...">
-            <button onclick="sendChatMessage()">Send</button>
-        </div>
+    <h3>Tic-Tac-Toe</h3>
+    <div id="game-board" class="tic-tac-toe">
+        <div class="cell" data-index="0"></div>
+        <div class="cell" data-index="1"></div>
+        <div class="cell" data-index="2"></div>
+        <div class="cell" data-index="3"></div>
+        <div class="cell" data-index="4"></div>
+        <div class="cell" data-index="5"></div>
+        <div class="cell" data-index="6"></div>
+        <div class="cell" data-index="7"></div>
+        <div class="cell" data-index="8"></div>
     </div>
-    <button id="chatbot-toggle" class="fixed bottom-4 right-4 bg-blue-600 text-white p-3 rounded-full">Chat with AI</button>
+    <button id="reset-game">Reset Game</button>
+</section>
 
+footer>
+    <p>© 2025 Steve Universe. All rights reserved.</p>
+    <button id="play-game">Play Tic-Tac-Toe</button>
+</footer>I'm
+    <!-- Chatbot -->
+<section id="chat-ai">
+    <h2>Chat with Cosmic AI</h2>
+    <div id="chat-container">
+        <div id="chat-output"></div>
+        <input type="text" id="chat-input" placeholder="Ask me anything...">
+        <button id="chat-send">Send</button>
+    </div>
+</section>
     <script>
+
         // Mobile Menu Toggle
         document.getElementById('mobile-menu-button').addEventListener('click', () => {
             const menu = document.getElementById('mobile-menu');
@@ -355,6 +344,54 @@
                 document.querySelector(anchor.getAttribute('href')).scrollIntoView({ behavior: 'smooth' });
             });
         });
+
+const cells = document.querySelectorAll('.cell');
+const resetGame = document.getElementById('reset-game');
+let currentPlayer = 'X';
+let board = ['', '', '', '', '', '', '', '', ''];
+
+cells.forEach(cell => {
+    cell.addEventListener('click', () => {
+        const index = cell.getAttribute('data-index');
+        if (board[index] === '') {
+            board[index] = currentPlayer;
+            cell.textContent = currentPlayer;
+            if (checkWin()) {
+                alert(`${currentPlayer} wins!`);
+                resetBoard();
+            } else if (board.every(cell => cell !== '')) {
+                alert('Draw!');
+                resetBoard();
+            } else {
+                currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+            }
+        }
+    });
+});
+
+resetGame.addEventListener('click', resetBoard);
+
+function checkWin() {
+    const winConditions = [
+        [0, 1, 2], [3, 4, 5], [6, 7, 8], // Rows
+        [0, 3, 6], [1, 4, 7], [2, 5, 8], // Columns
+        [0, 4, 8], [2, 4, 6]             // Diagonals
+    ];
+    return winConditions.some(condition =>
+        condition.every(index => board[index] === currentPlayer)
+    );
+}
+
+function resetBoard() {
+    board = ['', '', '', '', '', '', '', '', ''];
+    cells.forEach(cell => (cell.textContent = ''));
+    currentPlayer = 'X';
+}
+
+document.getElementById('play-game').addEventListener('click', () => {
+    const gameDiv = document.getElementById('mini-game');
+    gameDiv.style.display = gameDiv.style.display === 'none' ? 'block' : 'none';
+});
 
         // Contact Form Submission
         document.getElementById('contact-form').addEventListener('submit', async (e) => {
@@ -381,27 +418,36 @@
                 console.error('Form submission error:', error);
             }
         });
+body.space {
+    background-image: url('path/to/space.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+body.nebula {
+    background-image: url('path/to/nebula.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+body.starrynight {
+    background-image: url('path/to/starrynight.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+.background-option {
+    cursor: pointer;
+    margin-right: 10px;
+    text-decoration: underline;
+    color: #333;
+}
+document.querySelectorAll('.background-option').forEach(option => {
+    option.addEventListener('click', () => {
+        document.body.className = option.getAttribute('data-bg');
+    });
+});
 
-        // Background Selector
-        const backgroundSelector = document.getElementById('background-selector');
-        backgroundSelector.addEventListener('change', (e) => {
-            const selectedBg = e.target.value;
-            let bgImage;
-            switch (selectedBg) {
-                case 'In':
-                    bgImage = 'In.jpg';
-                    break;
-                case 'P':
-                    bgImage = 'P.jpg';
-                    break;
-                case 'starry':
-                    bgImage = 'images/starry-night.jpg';
-                    break;
-                default:
-                    bgImage = 'images/space.jpg';
-            }
-            document.body.style.backgroundImage = `url('${bgImage}'), linear-gradient(135deg, #0d1b2a, #1b263b)`;
-        });
 
         // Stories and Quotes
         const shortStories = [
@@ -514,38 +560,51 @@
             'Tell a tale of a hero who uses traditional African magic in a modern setting.'
         ];
 
-        function generateAIResponse(message) {
-            const lowerMessage = message.toLowerCase();
-            if (lowerMessage.includes('hello') || lowerMessage.includes('hi')) {
-                return 'Greetings, traveler! How can I assist you in the Steve Universe?';
-            } else if (lowerMessage.includes('poem')) {
-                return generatePoem();
-            } else if (lowerMessage.includes('character')) {
-                return createCharacter();
-            } else if (lowerMessage.includes('story')) {
-                return generateStory();
-            } else if (lowerMessage.includes('summarize')) {
-                const bookTitle = extractBookTitle(lowerMessage);
-                if (bookTitle) {
-                    return getBookSummary(bookTitle);
-                } else {
-                    return 'Please specify a book title to summarize. For example, "summarize Pishon: The Uprising".';
-                }
-            } else if (lowerMessage.includes('prompt')) {
-                return generatePrompt();
-            } else if (lowerMessage.includes('book')) {
-                return recommendBook();
-            } else {
-                return "I'm here to explore the cosmos of stories with you. Try asking for a poem, character, story, book summary, or writing prompt!";
-            }
+const chatOutput = document.getElementById('chat-output');
+const chatInput = document.getElementById('chat-input');
+const chatSend = document.getElementById('chat-send');
+let conversationHistory = [];
+
+chatSend.addEventListener('click', async () => {
+    const userMessage = chatInput.value.trim();
+    if (!userMessage) return;
+
+    chatOutput.innerHTML += `<p><strong>You:</strong> ${userMessage}</p>`;
+    conversationHistory.push({ role: 'user', content: userMessage });
+
+    try {
+        const response = await fetch('https://api.openai.com/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer YOUR_API_KEY'
+            },
+            body: JSON.stringify({
+                model: 'gpt-3.5-turbo',
+                messages: [
+                    { role: 'system', content: 'You are Cosmic AI, a friendly and empathetic assistant with a sense of humor. You provide helpful advice and solutions to problems, and you engage in casual conversations. Try to be relatable and understanding in your responses.' },
+                    ...conversationHistory
+                ]
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error('API request failed');
         }
 
-        function extractBookTitle(message) {
-            const parts = message.split('summarize');
-            if (parts.length > 1) {
-                return parts[1].trim();
-            }
-            return null;
+        const data = await response.json();
+        const aiMessage = data.choices[0].message.content;
+        chatOutput.innerHTML += `<p><strong>Cosmic AI:</strong> ${aiMessage}</p>`;
+        conversationHistory.push({ role: 'assistant', content: aiMessage });
+    } catch (error) {
+        chatOutput.innerHTML += `<p><strong>Cosmic AI:</strong> Sorry, I couldn't process that. Please try again later.</p>`;
+    }
+
+    chatInput.value = '';
+    chatOutput.scrollTop = chatOutput.scrollHeight;
+});
+```
+
         }
 
         function getBookSummary(bookTitle) {
